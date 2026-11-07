@@ -1,0 +1,155 @@
+<!doctype html>
+<html lang="fr" dir="ltr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#000000">
+<title>Hospivet · Clinique vétérinaire</title>
+<meta name="description" content="Hospivet, clinique vétérinaire : rendez-vous, contact et itinéraire.">
+<link rel="icon" href="img/hospivet-mascottes.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700;800&family=Cairo:wght@600;700;800&display=swap" rel="stylesheet">
+<style>
+  /* Hospivet links page (opened from the NFC plaque, the card and their QR). Brand: black + teal + orange, like the plaque and card. */
+  :root { --bk: #000; --bk2: #141414; --line: rgba(255,255,255,.1); --teal: #2BBAC2; --orange: #FBA31F; --muted: #AEB3BA;
+    --body: "Montserrat", "Cairo", system-ui, sans-serif; }
+  [dir="rtl"] { --body: "Cairo", system-ui, sans-serif; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bk); color: #fff; font: 500 16px/1.5 var(--body); -webkit-font-smoothing: antialiased; min-height: 100vh; }
+  img { display: block; max-width: 100%; }
+  a { color: inherit; text-decoration: none; }
+  button { font: inherit; color: inherit; background: none; border: 0; cursor: pointer; }
+  :focus-visible { outline: 2px solid var(--orange); outline-offset: 3px; }
+  .wrap { max-width: 520px; margin-inline: auto; padding-inline: 16px; }
+
+  header { text-align: center; padding: 22px 0 6px; position: relative; }
+  .lang { position: absolute; top: 16px; inset-inline-end: 0; height: 38px; min-width: 56px; padding: 0 14px; border-radius: 999px; border: 1px solid rgba(43,186,194,.55); color: var(--teal); font: 700 14px/1 var(--body); }
+  .logo { width: min(290px, 76vw); margin: 54px auto 0; }
+  .kind { color: var(--muted); font: 600 15px/1.4 var(--body); margin-top: 16px; }
+
+  .links { display: grid; gap: 12px; margin-top: 24px; }
+  .link { display: flex; align-items: center; gap: 14px; min-height: 70px; padding: 10px 14px; border-radius: 18px; background: var(--bk2); border: 1px solid var(--line); transition: transform .2s, border-color .2s; }
+  .link[hidden] { display: none; }
+  .link:hover { transform: translateY(-2px); border-color: rgba(43,186,194,.6); }
+  .link .ic { width: 48px; height: 48px; border-radius: 50%; display: grid; place-items: center; flex: none; background: var(--bk); border: 1.5px solid var(--teal); color: var(--teal); }
+  .link .ic svg { width: 23px; height: 23px; }
+  .link .tx { flex: 1; min-width: 0; }
+  .link b { display: block; font: 700 16.5px/1.25 var(--body); }
+  .link small { display: block; color: var(--muted); font-size: 13.5px; }
+  [dir="rtl"] .link .num { text-align: right; }
+  .link .go { width: 22px; height: 22px; color: var(--muted); flex: none; fill: none; stroke: currentColor; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
+  [dir="rtl"] .link .go { transform: scaleX(-1); }
+  .link.review .ic { border-color: var(--orange); color: var(--orange); }
+  .link.main { background: var(--orange); color: #14161A; border: 0; }
+  .link.main small { color: #3D2A06; }
+  .link.main .ic { background: #14161A; border-color: #14161A; color: var(--orange); }
+  .link.main .go { color: #14161A; }
+
+  .soon { margin-top: 26px; padding: 18px 16px; border-radius: 18px; border: 1px dashed rgba(43,186,194,.45); text-align: center; color: var(--muted); font: 600 15px/1.45 var(--body); }
+  .soon b { display: block; color: #fff; font-size: 17px; margin-bottom: 4px; }
+  .soon[hidden], .tools button[hidden] { display: none; }
+  .tools { display: grid; grid-template-columns: repeat(auto-fit, minmax(0, 1fr)); gap: 10px; margin-top: 22px; }
+  .tools button { min-height: 52px; display: flex; align-items: center; justify-content: center; gap: 8px; border-radius: 14px; background: var(--bk2); border: 1px solid var(--line); font: 700 14px/1.2 var(--body); }
+  .tools svg { width: 20px; height: 20px; fill: none; stroke: var(--teal); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+  footer { text-align: center; padding: 26px 0 calc(30px + env(safe-area-inset-bottom)); }
+  .credit { display: inline-flex; align-items: center; gap: 7px; direction: ltr; opacity: .75; }
+  .credit span { font: 600 10px/1 var(--body); letter-spacing: .14em; text-transform: uppercase; color: var(--muted); }
+  .credit img { height: 14px; width: auto; }
+  .toast { position: fixed; left: 50%; bottom: 24px; transform: translate(-50%, 20px); opacity: 0; background: var(--teal); color: #14161A; font-weight: 700; padding: 10px 18px; border-radius: 999px; transition: .3s; pointer-events: none; }
+  .toast.on { opacity: 1; transform: translate(-50%, 0); }
+  @media (prefers-reduced-motion: reduce) { .link, .toast { transition: none; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <button class="lang" id="lang" type="button">عربي</button>
+    <img class="logo" src="img/hospivet-logo.svg" alt="Hospivet Vet Clinic">
+    <p class="kind" data-i="kind">Clinique vétérinaire</p>
+  </header>
+
+  <main class="links">
+    <a class="link review" data-link="review" target="_blank" rel="noopener" hidden>
+      <span class="ic"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.8l2.8 5.8 6.4.9-4.6 4.5 1.1 6.3L12 17.3l-5.7 3 1.1-6.3-4.6-4.5 6.4-.9Z"/></svg></span>
+      <span class="tx"><b data-i="rev">Laisser un avis Google</b><small data-i="revSub">Votre avis compte ★★★★★</small></span><svg class="go" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+    </a>
+    <a class="link main" data-link="whatsapp" target="_blank" rel="noopener" hidden>
+      <span class="ic"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2Zm0 18.2a8.2 8.2 0 0 1-4.2-1.1l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2Zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8-.2-.1-.4-.1-.6.1l-.8 1c-.1.2-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.2-.4.2-.4.7-1.3.1-.2 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3 3 3 0 0 0-.9 2.2 5.2 5.2 0 0 0 1.1 2.7 11.8 11.8 0 0 0 4.5 4c1.7.7 2.3.8 3.2.6.5-.1 1.5-.6 1.7-1.2.2-.6.2-1.1.1-1.2l-.4-.3Z"/></svg></span>
+      <span class="tx"><b data-i="wa">Rendez-vous WhatsApp</b><small data-i="waSub">Écrivez-nous pour votre animal</small></span><svg class="go" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+    </a>
+    <a class="link" data-link="phone" hidden>
+      <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.4 1.8.7 2.7a2 2 0 0 1-.5 2.1L8 9.8a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.7.7a2 2 0 0 1 1.7 2Z"/></svg></span>
+      <span class="tx"><b data-i="call">Appeler</b><small class="num" dir="ltr" id="phoneShown"></small></span><svg class="go" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+    </a>
+    <a class="link" data-link="instagram" target="_blank" rel="noopener" hidden>
+      <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4.2"/><circle cx="17.4" cy="6.6" r="1.1" fill="currentColor" stroke="none"/></svg></span>
+      <span class="tx"><b>Instagram</b><small data-i="social">Suivez la clinique</small></span><svg class="go" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+    </a>
+    <a class="link" data-link="facebook" target="_blank" rel="noopener" hidden>
+      <span class="ic"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M13.5 21v-7.5h2.6l.4-3h-3V8.6c0-.9.3-1.5 1.5-1.5h1.6V4.4a21 21 0 0 0-2.3-.1c-2.3 0-3.9 1.4-3.9 4v2.2H7.8v3h2.6V21Z"/></svg></span>
+      <span class="tx"><b>Facebook</b><small data-i="social">Suivez la clinique</small></span><svg class="go" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+    </a>
+    <a class="link" data-link="maps" target="_blank" rel="noopener" hidden>
+      <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg></span>
+      <span class="tx"><b data-i="route">Itinéraire</b><small data-i="routeSub">Ouvrir dans Google Maps</small></span><svg class="go" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+    </a>
+  </main>
+
+  <p class="soon" id="soon" hidden><b data-i="soonT">Nos liens arrivent bientôt</b><span data-i="soonS">WhatsApp, appel, réseaux et itinéraire seront disponibles ici.</span></p>
+
+  <div class="tools">
+    <button type="button" id="save"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg><span data-i="save">Enregistrer</span></button>
+    <button type="button" id="share"><svg viewBox="0 0 24 24"><circle cx="18" cy="5" r="2.5"/><circle cx="6" cy="12" r="2.5"/><circle cx="18" cy="19" r="2.5"/><path d="m8.2 10.8 7.6-4.4M8.2 13.2l7.6 4.4"/></svg><span data-i="share">Partager</span></button>
+  </div>
+
+  <footer>
+    <a class="credit" href="https://oranova-agency.netlify.app/" target="_blank" rel="noopener" aria-label="Designed by Oranova"><span>Designed by</span><img src="img/oranova.svg" alt="Oranova"></a>
+  </footer>
+</div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+/* À REMPLIR avec les vraies infos de la clinique. Un bouton laissé vide ne s'affiche pas.
+   phone: format international sans + (ex. 213XXXXXXXXX) ; review: lien "rédiger un avis" Google. */
+const CLINIC = { phone: "", phoneShown: "", whatsapp: "", instagram: "", facebook: "", maps: "", review: "" };
+const T = {
+  fr: { kind: "Clinique vétérinaire", wa: "Rendez-vous WhatsApp", waSub: "Écrivez-nous pour votre animal", waMsg: "Bonjour Hospivet, je voudrais prendre rendez-vous pour mon animal.",
+        call: "Appeler", rev: "Laisser un avis Google", revSub: "Votre avis compte ★★★★★", social: "Suivez la clinique",
+        route: "Itinéraire", routeSub: "Ouvrir dans Google Maps", soonT: "Nos liens arrivent bientôt", soonS: "WhatsApp, appel, réseaux et itinéraire seront disponibles ici.", save: "Enregistrer", share: "Partager",
+        langBtn: "عربي", saved: "Contact téléchargé", copied: "Lien copié" },
+  ar: { kind: "عيادة بيطرية", wa: "موعد عبر واتساب", waSub: "راسلونا بخصوص حيوانكم الأليف", waMsg: "السلام عليكم Hospivet، أريد حجز موعد لحيواني الأليف.",
+        call: "اتصل بنا", rev: "قيّمنا على Google", revSub: "رأيك يهمّنا ★★★★★", social: "تابعوا العيادة",
+        route: "الاتجاهات", routeSub: "فتح في خرائط Google", soonT: "روابطنا قريباً", soonS: "واتساب، الاتصال، الشبكات الاجتماعية والاتجاهات ستكون متاحة هنا.", save: "حفظ الرقم", share: "مشاركة",
+        langBtn: "FR", saved: "تم تحميل جهة الاتصال", copied: "تم نسخ الرابط" }
+};
+let lang = "fr";
+try { if (localStorage.getItem("hospivet-lang") === "ar") lang = "ar"; } catch (e) {}
+const link = name => document.querySelector(`[data-link="${name}"]`);
+function fill() {
+  for (const name of ["review", "instagram", "facebook", "maps"]) if (CLINIC[name]) { link(name).href = CLINIC[name]; link(name).hidden = false; }
+  if (CLINIC.phone) { link("phone").href = "tel:+" + CLINIC.phone; link("phone").hidden = false; document.getElementById("phoneShown").textContent = CLINIC.phoneShown; }
+  if (CLINIC.whatsapp) link("whatsapp").hidden = false;
+  document.getElementById("save").hidden = !CLINIC.phone;
+  document.getElementById("soon").hidden = !!document.querySelector(".link:not([hidden])");
+}
+function apply() {
+  const t = T[lang];
+  document.documentElement.lang = lang; document.documentElement.dir = lang === "ar" ? "rtl" : "ltr";
+  document.querySelectorAll("[data-i]").forEach(el => { const v = t[el.dataset.i]; if (typeof v === "string") el.textContent = v; });
+  document.getElementById("lang").textContent = t.langBtn;
+  if (CLINIC.whatsapp) link("whatsapp").href = "https://wa.me/" + CLINIC.whatsapp + "?text=" + encodeURIComponent(t.waMsg);
+}
+document.getElementById("lang").addEventListener("click", () => { lang = lang === "ar" ? "fr" : "ar"; try { localStorage.setItem("hospivet-lang", lang); } catch (e) {} apply(); });
+const toast = (m) => { const el = document.getElementById("toast"); el.textContent = m; el.classList.add("on"); setTimeout(() => el.classList.remove("on"), 1800); };
+document.getElementById("save").addEventListener("click", () => {
+  const v = ["BEGIN:VCARD", "VERSION:3.0", "FN:Hospivet", "ORG:Hospivet Vet Clinic", "TITLE:Clinique vétérinaire", "TEL;TYPE=WORK:+" + CLINIC.phone, "URL:" + location.href, "END:VCARD"].join("\r\n");
+  const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([v], { type: "text/vcard" })); a.download = "Hospivet.vcf"; a.click(); toast(T[lang].saved);
+});
+document.getElementById("share").addEventListener("click", async () => {
+  if (navigator.share) { try { await navigator.share({ title: "Hospivet", url: location.href }); } catch (e) {} }
+  else { try { await navigator.clipboard.writeText(location.href); toast(T[lang].copied); } catch (e) {} }
+});
+fill(); apply();
+</script>
+</body>
+</html>
